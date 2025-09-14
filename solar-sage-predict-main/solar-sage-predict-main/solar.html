@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SunSight - AI Solar Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: #333;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(120deg, #2c3e50, #4ca1af);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: #ffd700;
+        }
+        
+        .hero {
+            background: url('https://images.unsplash.com/photo-1509391366360-2e959784a276?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+        }
+        
+        .hero-content {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section {
+            padding: 5rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-content {
+            padding: 1.5rem;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .prediction-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+            height: 400px;
+        }
+        
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .secure-badge {
+            display: inline-block;
+            background: var(--success);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span class="logo-icon">☀</span>
+                    <span>SunSight <span class="secure-badge">Secure HTTPS</span></span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#predictor">Predictor</a></li>
+                    <li><a href="#benefits">Benefits</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>AI-Powered Solar Generation Forecasting</h1>
+                <p>Predict your solar power output with 95% accuracy using our advanced machine learning algorithms</p>
+                <a href="#predictor" class="btn">Try Our Predictor</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <div class="feature-icon">📊</div>
+                        <h3>Data Collection</h3>
+                        <p>Our system gathers historical weather data, satellite imagery, and your plant's performance history to build accurate models.</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <div class="feature-icon">🤖</div>
+                        <h3>AI Analysis</h3>
+                        <p>Machine learning algorithms process the data to identify patterns and predict future solar generation levels.</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <div class="feature-icon">📈</div>
+                        <h3>Smart Forecasting</h3>
+                        <p>Receive detailed forecasts for the next 24-72 hours to optimize your energy management and distribution.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prediction Tool -->
+    <section class="section" id="predictor">
+        <div class="container">
+            <h2 class="section-title">Solar Generation Predictor</h2>
+            <div class="prediction-form">
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" placeholder="Enter your city or coordinates">
+                </div>
+                <div class="form-group">
+                    <label for="system-size">System Size (kW)</label>
+                    <input type="number" id="system-size" placeholder="Enter your system capacity">
+                </div>
+                <div class="form-group">
+                    <label for="panel-type">Panel Type</label>
+                    <select id="panel-type">
+                        <option value="mono">Monocrystalline</option>
+                        <option value="poly">Polycrystalline</option>
+                        <option value="thin">Thin-Film</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="generatePrediction()">Generate Prediction</button>
+                
+                <div class="chart-container">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+                
+                <div id="api-response" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; display: none;">
+                    <h4>API Simulation Response</h4>
+                    <pre id="response-content" style="background: white; padding: 10px; border-radius: 5px; overflow: auto;"></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="section" id="benefits">
+        <div class="container">
+            <h2 class="section-title">Benefits of Solar Forecasting</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <h3>Grid Optimization</h3>
+                        <p>Utilities can better manage energy load and reduce reliance on fossil fuel peaker plants.</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <h3>Financial Planning</h3>
+                        <p>Predict revenue from energy sales and optimize participation in energy markets.</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <h3>Maintenance Alerts</h3>
+                        <p>Receive notifications when your system underperforms, indicating potential maintenance needs.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>© 2023 SunSight AI Solar Predictions. This is a prototype demonstration.</p>
+            <p>Secured with HTTPS encryption</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize chart
+        const ctx = document.getElementById('forecastChart').getContext('2d');
+        let forecastChart;
+        
+        // Simulate API call to backend
+        async function simulateAPICall(location, systemSize, panelType) {
+            // Show loading state
+            document.getElementById('api-response').style.display = 'block';
+            document.getElementById('response-content').textContent = 'Sending secure request to API...';
+            
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Simulate API response
+            const response = {
+                status: "success",
+                message: "Prediction generated successfully",
+                data: {
+                    location: location,
+                    system_size: systemSize,
+                    panel_type: panelType,
+                    prediction: {
+                        timestamp: new Date().toISOString(),
+                        forecast: Array.from({length: 24}, (_, i) => {
+                            const hour = i;
+                            if (hour >= 6 && hour <= 18) {
+                                return systemSize * (0.8 * Math.sin((hour - 6) / 12 * Math.PI) + 0.2) + Math.random() * systemSize * 0.05;
+                            }
+                            return 0;
+                        }),
+                        confidence: 0.92
+                    },
+                    recommendations: [
+                        "Optimal energy selling time: 12:00-14:00",
+                        "System performing at 95% efficiency",
+                        "No maintenance required at this time"
+                    ]
+                },
+                encryption: {
+                    protocol: "TLS 1.3",
+                    certificate: "Valid until 2024-12-31",
+                    secure: true
+                }
+            };
+            
+            return response;
+        }
+        
+        // Function to generate prediction
+        async function generatePrediction() {
+            const location = document.getElementById('location').value || 'Your Location';
+            const systemSize = document.getElementById('system-size').value || 5;
+            const panelType = document.getElementById('panel-type').value;
+            
+            try {
+                // Simulate API call to backend
+                const apiResponse = await simulateAPICall(location, systemSize, panelType);
+                
+                // Display API response
+                document.getElementById('response-content').textContent = JSON.stringify(apiResponse, null, 2);
+                
+                // Generate sample data based on system size
+                const hours = ['6AM', '9AM', '12PM', '3PM', '6PM'];
+                const generationData = [
+                    systemSize * 0.2, 
+                    systemSize * 0.8, 
+                    systemSize * 0.95, 
+                    systemSize * 0.7, 
+                    systemSize * 0.1
+                ];
+                
+                // Destroy previous chart if it exists
+                if (forecastChart) {
+                    forecastChart.destroy();
+                }
+                
+                // Create new chart
+                forecastChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: hours,
+                        datasets: [{
+                            label: Predicted Generation for ${location},
+                            data: generationData,
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(52, 152, 219, 1)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Power Generation (kW)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Time of Day'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: Solar Generation Forecast for ${location},
+                                font: {
+                                    size: 16
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return Generation: ${context.parsed.y.toFixed(2)} kW;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                document.getElementById('response-content').textContent = Error: ${error.message};
+            }
+        }
+        
+        // Initialize with sample data
+        window.onload = function() {
+            document.getElementById('location').value = "San Francisco, CA";
+            document.getElementById('system-size').value = 10;
+            generatePrediction();
+            
+            // Simulate secure connection
+            console.log("Secure HTTPS connection established");
+            console.log("TLS 1.3 encryption active");
+        };
+    </script>
+</body>
+</html>
